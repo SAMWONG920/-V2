@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>即時商品格價平台</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 30px auto; padding: 20px; background-color: #f9f9f9; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .best-price { background-color: #e6ffe6; font-weight: bold; }
+        .tag { background-color: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 12px; margin-left: 5px; }
+    </style>
+</head>
+<body>
+
+    <h2>跨平台商品格價搜尋</h2>
+    <div class="search-box">
+        <input type="text" id="keyword" placeholder="輸入商品名稱（如：iPhone 15）">
+        <button onclick="searchPrice()">格價搜尋</button>
+    </div>
+
+    <div id="resultArea"></div>
+
+    <script>
+        // 模擬伺服器端抓取的不同商店資料庫
+        const storeDatabase = [
+            { store: "HKTVmall", name: "iPhone 15 128GB 黑色", price: 6899, url: "https://www.hktvmall.com" },
+            { store: "豐澤 Fortress", name: "Apple iPhone 15 128GB", price: 6599, url: "https://www.fortress.com.hk" },
+            { store: "百老滙 Broadway", name: "iPhone 15 128GB 智能手機", price: 6680, url: "https://www.broadwaylifestyle.com" },
+            { store: "友和 YOHO", name: "Apple iPhone 15 (128GB)", price: 6499, url: "https://www.yohohongkong.com" },
+            { store: "HKTVmall", name: "Sony WH-1000XM5 耳機", price: 2400, url: "https://www.hktvmall.com" },
+            { store: "友和 YOHO", name: "Sony WH-1000XM5 無線降噪耳機", price: 2280, url: "https://www.yohohongkong.com" }
+        ];
+
+        function searchPrice() {
+            const query = document.getElementById('keyword').value.trim().toLowerCase();
+            const resultArea = document.getElementById('resultArea');
+
+            if (!query) {
+                resultArea.innerHTML = "<p>請先輸入關鍵字。</p>";
+                return;
+            }
+
+            // 過濾符合名稱的商品
+            const filteredResults = storeDatabase.filter(item => 
+                item.name.toLowerCase().includes(query)
+            );
+
+            if (filteredResults.length === 0) {
+                resultArea.innerHTML = "<p>未有找到相關商品的價格資訊。</p>";
+                return;
+            }
+
+            // 按價格由低至高排序
+            filteredResults.sort((a, b) => a.price - b.price);
+
+            // 組裝 HTML 表格
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>商店</th>
+                            <th>商品全名</th>
+                            <th>價格 (HKD)</th>
+                            <th>連結</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            filteredResults.forEach((item, index) => {
+                const isLowest = index === 0;
+                tableHTML += `
+                    <tr class="${isLowest ? 'best-price' : ''}">
+                        <td>${item.store}</td>
+                        <td>${item.name}</td>
+                        <td>$${item.price} ${isLowest ? '<span class="tag">最低價</span>' : ''}</td>
+                        <td><a href="${item.url}" target="_blank">前往購買</a></td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `</tbody></table>`;
+            resultArea.innerHTML = tableHTML;
+        }
+    </script>
+
+</body>
+</html>
